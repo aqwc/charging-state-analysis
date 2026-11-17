@@ -81,13 +81,16 @@ dmps_conc = pd.Series(
     index=dmps.index
 )
 
-nais_hourly = nais_conc.resample("1h").median()
-dmps_hourly = dmps_conc.resample("1h").median()
+#nais_hourly = nais_conc.resample("1h").median()
+#dmps_hourly = dmps_conc.resample("1h").median()
+
+nais_hourly = nais_conc
+dmps_hourly = dmps_conc
 
 # Keep only hours between 01:00 and 03:00
 nais_hourly = nais_hourly[
     (nais_hourly.index.hour >= 1) &
-    (nais_hourly.index.hour < 3)
+    (nais_hourly.index.hour <= 3)
 ]
 
 dmps_hourly = dmps_hourly[
@@ -106,49 +109,6 @@ hourly_comparison = pd.concat(
 hourly_comparison = hourly_comparison[
     (hourly_comparison > 0).all(axis=1)
 ]
-
-# --------------------------------------------------
-# 4. Apply the NAIS concentration threshold
-# --------------------------------------------------
-
-concentrations = af.calc_conc_interp(
-    nais,
-    4e-9,
-    6e-9
-).squeeze()
-
-threshold = 1315
-
-# Calculate hourly median of the threshold concentration
-concentrations_hourly = concentrations.resample("1h").median()
-
-# Apply threshold to hourly data
-comparison = hourly_comparison.copy()
-
-comparison["threshold_concentration"] = (
-    concentrations_hourly.reindex(comparison.index)
-)
-
-# Retain only hours where the threshold is exceeded
-comparison = comparison[
-    comparison["threshold_concentration"] > threshold
-].copy()
-
-# Remove threshold helper column
-comparison = comparison.drop(columns="threshold_concentration")
-
-# Remove invalid values
-comparison = comparison.replace(
-    [np.inf, -np.inf], np.nan
-).dropna()
-
-comparison = comparison[
-    (comparison["NAIS"] > 0) &
-    (comparison["DMPS"] > 0)
-]
-
-print("Measurements before threshold:", len(hourly_comparison))
-print("Measurements after threshold:", len(comparison))
 
 # --------------------------------------------------
 # 6. Plot DMPS vs NAIS
@@ -182,7 +142,7 @@ ax.set_xlabel("NAIS concentration (cm$^{-3}$)")
 ax.set_ylabel("DMPS concentration (cm$^{-3}$)")
 
 ax.set_title(
-    f"10–15 nm particle concentration (NAIS threshold > {threshold})"
+    f"10–15 nm particle concentration\n"
 )
 
 ax.legend()
@@ -196,8 +156,8 @@ plt.show()
 # 7. Calculate correlation
 # --------------------------------------------------
 
-correlation = comparison["NAIS"].corr(
-    comparison["DMPS"]
+correlation = hourly_comparison["NAIS"].corr(
+    hourly_comparison["DMPS"]
 )
 
 print(f"Pearson correlation: {correlation:.3f}")
@@ -205,15 +165,15 @@ print(f"Pearson correlation: {correlation:.3f}")
 fig, ax = plt.subplots(figsize=(14, 5))
 
 ax.plot(
-    comparison.index,
-    comparison["NAIS"],
+    hourly_comparison.index,
+    hourly_comparison["NAIS"],
     label="NAIS",
     alpha=0.8
 )
 
 ax.plot(
-    comparison.index,
-    comparison["DMPS"],
+    hourly_comparison.index,
+    hourly_comparison["DMPS"],
     label="DMPS",
     alpha=0.8
 )

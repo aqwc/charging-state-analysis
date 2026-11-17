@@ -50,7 +50,7 @@ dmps_df = dmps_df[
 
 dmps_df = dmps_df.sort_index()
 
-# Interpolate DMPS data to 10-minute intervals (same as NAIS) and reindex to match NAIS timestamps
+"""# Interpolate DMPS data to 10-minute intervals (same as NAIS) and reindex to match NAIS timestamps
 dmps_10min = dmps_df.reindex(
     neg_p.index.union(dmps_df.index)
 ).sort_index()
@@ -75,7 +75,7 @@ combined = neg_p_nais_original.copy()
 dmps_mask = (
     (nais_dp >= 10e-9) &
     (nais_dp <= 40e-9)
-)
+)"""
 
 # --------------------------------------------------
 # Convert NAIS and DMPS distributions from dN/dlogDp to dN
@@ -254,8 +254,6 @@ l = 1.2
 
 f_meas = neg_i_masked / neg_p_masked
 
-print(f_meas.isna().mean() * 100)
-
 dp_nm = neg_p_charge.columns.to_numpy(dtype=float)
 
 f_eq_1 = pd.Series(
@@ -373,22 +371,3 @@ ax1.legend(
 
 plt.tight_layout()
 plt.savefig("beijing_morning_day_evening_charging_states_dN.png", dpi=300)
-
-for name, series in [
-    ("Morning", morning),
-    ("Day", day),
-    ("Evening", evening)
-]:
-    print(f"\n{name}")
-    print(series.describe())
-    print("NaNs:", series.isna().sum())
-    print("Zero or negative:", (series <= 0).sum())
-    print("Positive:", (series > 0).sum())
-
-print("NAIS original columns:", neg_p_nais_original.columns[:5].tolist())
-print("DMPS original columns:", dmps_df.columns[:5].tolist())
-
-print("NAIS original median:", neg_p_nais_original.median().median())
-print("DMPS original median:", dmps_df.median().median())
-
-print("Combined median:", neg_p.median().median())

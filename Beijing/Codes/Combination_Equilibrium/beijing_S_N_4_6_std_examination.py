@@ -261,8 +261,8 @@ overcharge = f_meas.divide(
 
 dN = af.calc_conc(neg_p_nais_original, 4e-9, 6e-9).squeeze()
 
-start = "2022-03-14 00:00:00"
-end = "2022-03-27 23:59:59"
+start = "2022-03-13 00:00:00"
+end = "2022-03-20 23:59:59"
 
 #start = "2020-10-01 00:00:00"
 #end = "2022-06-29 23:59:59"
@@ -297,19 +297,19 @@ plot_df = pd.concat(
 # Scatter plot
 fig, ax = plt.subplots(figsize=(8, 6))
 
-"""ax.plot(
+ax.plot(
     plot_df["dN"],
     plot_df["overcharge_std"],
     linestyle="-",
     linewidth=1.2
-)"""
+)
 
-ax.scatter(
+"""ax.scatter(
     plot_df["dN"],
     plot_df["overcharge_std"],
     alpha=0.7,
     s=30
-)
+)"""
 
 ax.set_xscale("log")
 ax.set_yscale("log")

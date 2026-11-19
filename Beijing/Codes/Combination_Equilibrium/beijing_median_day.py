@@ -216,6 +216,17 @@ median_diurnal.index = pd.to_datetime(
     median_diurnal.index,
     format='%H:%M')
 
+def dn2dndlogdp(df):
+    dp = df.columns.to_numpy(dtype=float)
+
+    # Calculate logarithmic bin edges
+    logdp = af.calc_bin_edges(pd.Series(dp))
+    dlogdp = np.diff(logdp)
+
+    return df.div(dlogdp, axis=1)
+
+median_diurnal = dn2dndlogdp(median_diurnal)
+
 #median_diurnal = median_diurnal.loc[:, median_diurnal.columns <= 10e-9]
 
 fig, ax = plt.subplots(figsize=(12,6))
